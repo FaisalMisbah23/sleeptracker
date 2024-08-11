@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sleep Tracker</title>
+</head>
+<style>
+    body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0;
+}
+
+.container {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+label {
+    font-weight: bold;
+}
+
+input {
+    padding: 10px;
+    font-size: 16px;
+}
+
+button {
+    padding: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#result {
+    margin-top: 20px;
+    font-size: 18px;
+    text-align: center;
+}
+
+</style>
+<body>
+    <div class="container">
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="statistics.html">Statistics</a></li>
+                <li><a href="settings.html">Settings</a></li>
+                <li><a href="history.html">History</a></li>
+            </ul>
+        </nav>
+        
+        <h1>Sleep Tracker</h1>
+        <form id="sleepForm">
+            <label for="date">Date:</label>
+            <input type="date" id="date" required>
+            <label for="sleepTime">Time you went to bed:</label>
+            <input type="time" id="sleepTime" required>
+            <label for="wakeTime">Time you woke up:</label>
+            <input type="time" id="wakeTime" required>
+            <button type="button" id="calculateSleepTime">Calculate Sleep Time</button>
+            <button type="button" id="addToDashboard">Add to Dashboard</button>
+        </form>
+        <p id="result"></p>
+    </div>
+    <script>
+        let calculatedSleepDuration = 0;
+
+document.getElementById('calculateSleepTime').addEventListener('click', function() {
+    const date = document.getElementById('date').value;
+    const sleepTime = document.getElementById('sleepTime').value;
+    const wakeTime = document.getElementById('wakeTime').value;
+
+    if (!date || !sleepTime || !wakeTime) {
+        alert('Please enter all fields.');
+        return;
+    }
+
+    const sleepDate = new Date(`${date}T${sleepTime}:00`);
+    const wakeDate = new Date(`${date}T${wakeTime}:00`);
+
+    if (wakeDate < sleepDate) {
+        wakeDate.setDate(wakeDate.getDate() + 1);
+    }
+
+    calculatedSleepDuration = (wakeDate - sleepDate) / 1000 / 60 / 60; // duration in hours
+    document.getElementById('result').innerText = `You slept for ${calculatedSleepDuration.toFixed(2)} hours.`;
+});
+
+document.getElementById('addToDashboard').addEventListener('click', function() {
+    if (calculatedSleepDuration === 0) {
+        alert('Please calculate the sleep time first.');
+        return;
+    }
+
+    const date = document.getElementById('date').value;
+    const sleepTime = document.getElementById('sleepTime').value;
+    const wakeTime = document.getElementById('wakeTime').value;
+
+    const sleepData = JSON.parse(localStorage.getItem('sleepData')) || [];
+    sleepData.push({ date, sleepTime, wakeTime, sleepDuration: calculatedSleepDuration });
+    localStorage.setItem('sleepData', JSON.stringify(sleepData));
+
+    alert('Sleep record added to dashboard.');
+});
+
+document.getElementById('goToDashboard').addEventListener('click', function() {
+    window.location.href = 'dashboard.html';
+});
+
+    </script>
+</body>
+</html>
